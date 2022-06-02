@@ -5,5 +5,6 @@ import (
 )
 
 func main() {
-	fmt.Println("main() called")
+	fmt.Println("start server")
+	RunServer()
 }
