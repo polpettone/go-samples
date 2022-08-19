@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"time"
@@ -25,12 +26,23 @@ func main() {
 
 	speaker.Init(format.SampleRate, format.SampleRate.N(time.Second/10))
 
-	done := make(chan bool)
+	loop := beep.Loop(3, streamer)
+	fast := beep.ResampleRatio(4, 5, loop)
 
-	speaker.Play(beep.Seq(streamer, beep.Callback(func() {
+	done := make(chan bool)
+	speaker.Play(beep.Seq(fast, beep.Callback(func() {
 		done <- true
 	})))
 
-	<-done
+	for {
+		select {
+		case <-done:
+			return
+		case <-time.After(time.Second):
+			speaker.Lock()
+			fmt.Println(format.SampleRate.D(streamer.Position()).Round(time.Second))
+			speaker.Unlock()
+		}
+	}
 
 }
