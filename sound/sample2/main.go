@@ -11,8 +11,23 @@ import (
 	"github.com/faiface/beep/speaker"
 )
 
-func main() {
+type EngineOne struct {
+	streamer beep.Streamer
+}
 
+func (e EngineOne) PlaySound() {
+
+	fmt.Println("PlaySound")
+
+	done := make(chan bool)
+	speaker.Play(beep.Seq(e.streamer, beep.Callback(func() {
+		done <- true
+	})))
+
+	<-done
+}
+
+func setup() beep.Streamer {
 	f, err := os.Open("sample.mp3")
 	if err != nil {
 		log.Fatal(err)
@@ -22,27 +37,20 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer streamer.Close()
 
 	speaker.Init(format.SampleRate, format.SampleRate.N(time.Second/10))
+	fast := beep.ResampleRatio(4, 5, streamer)
 
-	loop := beep.Loop(3, streamer)
-	fast := beep.ResampleRatio(4, 5, loop)
+	return fast
+}
 
-	done := make(chan bool)
-	speaker.Play(beep.Seq(fast, beep.Callback(func() {
-		done <- true
-	})))
+func main() {
 
-	for {
-		select {
-		case <-done:
-			return
-		case <-time.After(time.Second):
-			speaker.Lock()
-			fmt.Println(format.SampleRate.D(streamer.Position()).Round(time.Second))
-			speaker.Unlock()
-		}
-	}
+	e := EngineOne{}
+	e.streamer = setup()
+
+	e.PlaySound()
+
+	e.PlaySound()
 
 }
