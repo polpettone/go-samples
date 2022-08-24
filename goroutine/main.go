@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"time"
 )
 
 func setupShellSettings() {
@@ -22,7 +23,14 @@ func inputKeyReceiver(keyChannel chan string) {
 	}
 }
 
-func inputKeyHandler(keyChannel chan string) {
+func impulseGenerator(impulseChannel chan bool, frequence time.Duration) {
+	for {
+		impulseChannel <- true
+		time.Sleep(frequence)
+	}
+}
+
+func inputKeyHandler(keyChannel chan string, impulseChannel chan bool) {
 
 	for {
 		select {
@@ -39,6 +47,9 @@ func inputKeyHandler(keyChannel chan string) {
 				fmt.Printf("no binding for %s\n", key)
 			}
 
+		case <-impulseChannel:
+			fmt.Println("impulse %s", time.Now().Local())
+
 		}
 	}
 
@@ -49,8 +60,10 @@ func main() {
 	setupShellSettings()
 
 	keyChannel := make(chan string, 1)
+	impulseChannel := make(chan bool, 1)
 	go inputKeyReceiver(keyChannel)
-	go inputKeyHandler(keyChannel)
+	go impulseGenerator(impulseChannel, time.Duration(time.Second/10))
+	go inputKeyHandler(keyChannel, impulseChannel)
 
 	select {}
 }
