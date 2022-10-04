@@ -7,7 +7,12 @@ func init() {
 }
 
 func main() {
+	defer shutdown()
 	fmt.Println("main() called")
+}
+
+func shutdown() {
+	fmt.Println("shutdown")
 }
 
 func Never() {

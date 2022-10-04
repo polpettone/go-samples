@@ -4,10 +4,10 @@ import "fmt"
 
 func main() {
 
-	repo := InMemoryRepo{}
+	inMemoryRepo := InMemoryRepo{}
 
 	service := Service{
-		Repo: repo,
+		Repo: inMemoryRepo,
 	}
 
 	result, _ := service.DoSomething()

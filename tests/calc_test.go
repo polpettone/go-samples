@@ -15,13 +15,13 @@ func TestCalc(t *testing.T) {
 
 func TestCalcTableDriven(t *testing.T) {
 
-	type args struct {
+	type Args struct {
 		wanted int
 		x      int
 		y      int
 	}
 
-	tests := []args{
+	tests := []Args{
 
 		{
 			x:      1,
@@ -37,11 +37,14 @@ func TestCalcTableDriven(t *testing.T) {
 	}
 
 	for _, tt := range tests {
+
 		t.Run(strconv.Itoa(tt.wanted), func(t *testing.T) {
+
 			actual := Add(tt.x, tt.y)
 			if actual != tt.wanted {
 				t.Errorf("Wanted %d, got %d", tt.wanted, actual)
 			}
+
 		})
 	}
 }
